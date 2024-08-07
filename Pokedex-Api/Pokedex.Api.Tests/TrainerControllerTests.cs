@@ -1,4 +1,7 @@
 ﻿using System.Net;
+using System.Net.Http.Json;
+using Ardalis.Result;
+using Pokedex_Api.Models;
 using Xunit;
 
 namespace Pokedex.Api.Tests;
@@ -19,36 +22,60 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
     }
     
     [Fact]
-    public void GetTrainerShouldOk()
+    public async Task GetTrainerShouldReturnTrainerAndAssignedPokemon()
     {
         //Arrange
-        var response = _httpClient.GetAsync($"trainer/{Guid.NewGuid()}");
+        var newTrainer = new Trainer("Ash")
+        {
+            Pokemons =
+            [
+                new Pokemon("Pikachu", new Statistics() { Health = 10, Stamina = 10, Strength = 10 })
+            ]
+        };
+        var newTrainerResponse = await _httpClient.PostAsJsonAsync("trainer",newTrainer);
+        var trainerId = await newTrainerResponse.Content.ReadFromJsonAsync<Result<Guid>>();
         
         //Act
+        var response = await _httpClient.GetAsync($"trainer/{trainerId?.Value}");
         
         //Assert
+        Assert.True(response.IsSuccessStatusCode);
+
+        var trainer = await response.Content.ReadFromJsonAsync<Result<Trainer>>();
+        Assert.Equivalent(newTrainer, trainer?.Value);
     }
     
     [Fact]
-    public void GetAllTrainerShouldReturnEmptyListWhenNoTrainerAdded()
+    public async Task GetAllTrainerShouldReturnEmptyListWhenNoTrainerAdded()
     {
-        //Arrange
-        var response = _httpClient.GetAsync($"trainer/{Guid.NewGuid()}");
-        
         //Act
+        var response = await _httpClient.GetAsync($"trainer");
         
         //Assert
+        Assert.True(response.IsSuccessStatusCode);
+        var trainers = await response.Content.ReadFromJsonAsync<IEnumerable<Trainer>>();
+        Assert.Empty(trainers!);
     }
     
     [Fact]
-    public void GetAllTrainerShouldReturnPreviouslyAddedTrainer()
+    public async Task GetAllTrainerShouldReturnPreviouslyAddedTrainer()
     {
         //Arrange
-        var response = _httpClient.GetAsync($"trainer/{Guid.NewGuid()}");
+        var newTrainer = new Trainer("Ash")
+        {
+            Pokemons =
+            [
+                new Pokemon("Pikachu", new Statistics() { Health = 10, Stamina = 10, Strength = 10 })
+            ]
+        };
+        await _httpClient.PostAsJsonAsync("trainer",newTrainer);        
         
         //Act
+        var response = await _httpClient.GetAsync($"trainer");
         
         //Assert
+        var trainers = await response.Content.ReadFromJsonAsync<IEnumerable<Trainer>>();
+        Assert.Equal(trainers?.FirstOrDefault()?.Name, newTrainer.Name);
     }
     
     [Fact]
@@ -74,13 +101,21 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
     }
     
     [Fact]
-    public void CreateTrainerShouldBeSuccessful()
+    public async Task CreateTrainerShouldBeSuccessful()
     {
         //Arrange
-        var response = _httpClient.GetAsync($"trainer/{Guid.NewGuid()}");
+        var newTrainer = new Trainer("Ash")
+        {
+            Pokemons =
+            [
+                new Pokemon("Pikachu", new Statistics() { Health = 10, Stamina = 10, Strength = 10 })
+            ]
+        };
         
         //Act
-        
+        var response = await _httpClient.PostAsJsonAsync("trainer",newTrainer);
+
         //Assert
+        Assert.True(response.IsSuccessStatusCode);
     }
 }

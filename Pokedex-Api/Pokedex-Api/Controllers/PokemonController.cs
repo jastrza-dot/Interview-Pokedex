@@ -15,7 +15,7 @@ public class PokemonController(IDbContextFactory<PokedexDbContext> dbContextFact
     public async Task<Result<Pokemon>> Get(Guid id, CancellationToken cancellationToken)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
-        var pokemon = await dbContext.Pokemons.Where(pokemon => pokemon.Id == id).FirstOrDefaultAsync(cancellationToken);
+        var pokemon = await dbContext.Pokemons.Include(p => p.Statistics).Where(pokemon => pokemon.Id == id).FirstOrDefaultAsync(cancellationToken);
 
         if (pokemon == null)
         {
@@ -54,7 +54,6 @@ public class PokemonController(IDbContextFactory<PokedexDbContext> dbContextFact
             return Result.Invalid(new ValidationError("Pokemon name to short"));
         }
         dbContext.Pokemons.Add(pokemon);
-        
         return Result.Success(pokemon.Id);
     }
 }
@@ -62,3 +61,5 @@ public class PokemonController(IDbContextFactory<PokedexDbContext> dbContextFact
 // Create not save to DB
 // Same model to communicate with DB and UI
 // Accessing db in controllers
+
+

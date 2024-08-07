@@ -13,7 +13,12 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
     public async Task<Result<Trainer>> Get(Guid id, CancellationToken cancellationToken)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
-        var trainer = await dbContext.Trainers.Where(trainer => trainer.Id == id).FirstOrDefaultAsync(cancellationToken);
+        var trainer = await dbContext
+            .Trainers
+            // .Include(p => p.Pokemons)
+            // .ThenInclude(p => p.Statistics)
+            .Where(trainer => trainer.Id == id)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (trainer == null)
         {
@@ -31,7 +36,7 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
     }
     
     [HttpPost]
-    public async Task<Result> Create(
+    public async Task<Result<Guid>> Create(
         Trainer trainer,
         CancellationToken cancellationToken)
     {
@@ -45,17 +50,28 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
             return Result.Invalid(new ValidationError($"Trainer with Id {trainer.Id} already exists"));
         }
 
+        foreach (var trainerPokemon in trainer.Pokemons)
+        {
+            var pokemon = await dbContext
+                .Pokemons
+                .FirstOrDefaultAsync(pokemon => pokemon.Id == trainerPokemon.Id, cancellationToken: cancellationToken);
+
+            if (pokemon != null)
+            {
+                return Result.Invalid(new ValidationError("Cannot create new trainer with already existing pokemon"));
+            }
+        }
+        
+        
         if (trainer.Pokemons.Any(t => t.Name.Length <= 3))
         {
             return Result.Invalid(new ValidationError("Too short pokemon name"));
         }
-
-        // var trackedPokemons = await dbContext.Pokemons.AsTracking().ToListAsync(cancellationToken: cancellationToken);
         
         dbContext.Trainers.Add(trainer);
         
         await dbContext.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Result.Success(trainer.Id);
     }
     
     // [HttpPost]

@@ -25,6 +25,7 @@ app.UseAuthorization();
 using var scope = app.Services.CreateScope();
 var dataContext = scope.ServiceProvider.GetRequiredService<PokedexDbContext>();
 dataContext.Database.EnsureCreated();
+await DbInitializer.Initialize(dataContext);
 
 app.MapControllers();
 
