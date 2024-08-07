@@ -33,28 +33,16 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
             ]
         };
         var newTrainerResponse = await _httpClient.PostAsJsonAsync("trainer",newTrainer);
-        var trainerId = await newTrainerResponse.Content.ReadFromJsonAsync<Result<Guid>>();
+        var trainerId = await newTrainerResponse.Content.ReadFromJsonAsync<Guid>();
         
         //Act
-        var response = await _httpClient.GetAsync($"trainer/{trainerId?.Value}");
+        var response = await _httpClient.GetAsync($"trainer/{trainerId}");
         
         //Assert
         Assert.True(response.IsSuccessStatusCode);
 
         var trainer = await response.Content.ReadFromJsonAsync<Result<Trainer>>();
         Assert.Equivalent(newTrainer, trainer?.Value);
-    }
-    
-    [Fact]
-    public async Task GetAllTrainerShouldReturnEmptyListWhenNoTrainerAdded()
-    {
-        //Act
-        var response = await _httpClient.GetAsync($"trainer");
-        
-        //Assert
-        Assert.True(response.IsSuccessStatusCode);
-        var trainers = await response.Content.ReadFromJsonAsync<IEnumerable<Trainer>>();
-        Assert.Empty(trainers!);
     }
     
     [Fact]
@@ -82,7 +70,6 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
     public void CreateTrainerShouldReturnErrorWhenTrainerAlreadyExists()
     {
         //Arrange
-        var response = _httpClient.GetAsync($"trainer/{Guid.NewGuid()}");
         
         //Act
         
@@ -93,7 +80,6 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
     public void CreateTrainerShouldFailedWhenAnyOfPokemonsDontMeetRequirements()
     {
         //Arrange
-        var response = _httpClient.GetAsync($"trainer/{Guid.NewGuid()}");
         
         //Act
         

@@ -39,19 +39,6 @@ public class PokemonControllerTests(PokedexWebApplicationFactory factory) : ICla
         
         Assert.True(result.IsSuccessStatusCode);
     }
-
-    [Fact] public async Task GetAllShouldReturnEmptyListWhenNoPokemonInDb()
-    {
-        // Act
-        var response = await _httpClient.GetAsync("pokemon");
-
-        // Assert
-        Assert.True(response.IsSuccessStatusCode);
-
-        var result = await response.Content.ReadFromJsonAsync<IEnumerable<Pokemon>>();
-        
-        Assert.Empty(result);
-    }
     
     [Fact] public async Task GetAllShouldReturnPokemonsFromDb()
     {

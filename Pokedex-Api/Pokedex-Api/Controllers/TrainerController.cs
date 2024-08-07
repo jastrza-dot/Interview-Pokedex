@@ -1,4 +1,5 @@
 ﻿using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Pokedex_Api.Models;
@@ -10,13 +11,12 @@ namespace Pokedex_Api.Controllers;
 public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFactory) : ControllerBase
 {
     [HttpGet("{id}")]
+    [TranslateResultToActionResult]
     public async Task<Result<Trainer>> Get(Guid id, CancellationToken cancellationToken)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         var trainer = await dbContext
             .Trainers
-            // .Include(p => p.Pokemons)
-            // .ThenInclude(p => p.Statistics)
             .Where(trainer => trainer.Id == id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -29,6 +29,7 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
     }
     
     [HttpGet]
+    [TranslateResultToActionResult]
     public async Task<IEnumerable<Trainer>> GetAll(CancellationToken cancellationToken)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -36,6 +37,7 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
     }
     
     [HttpPost]
+    [TranslateResultToActionResult]
     public async Task<Result<Guid>> Create(
         Trainer trainer,
         CancellationToken cancellationToken)
@@ -63,7 +65,7 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
         }
         
         
-        if (trainer.Pokemons.Any(t => t.Name.Length <= 3))
+        if (trainer.Pokemons.Any(t => t.Name.Length < 3))
         {
             return Result.Invalid(new ValidationError("Too short pokemon name"));
         }
@@ -74,24 +76,43 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
         return Result.Success(trainer.Id);
     }
     
-    // [HttpPost]
-    // public async Task<Result> AssignPokemon(
-    //     Guid trainerId,
-    //     Guid pokemonId,
-    //     CancellationToken cancellationToken)
-    // {
-    //     await using var dbContext = dbContextFactory.CreateDbContextAsync(cancellationToken).Result;
-    //
-    //     var trainer = 
-    //         await dbContext.Trainers.Where(t => t.Id == trainerId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
-    //
-    //     if (trainer == null)
-    //     {
-    //         return Result.Invalid(new ValidationError($"Trainer with Id {trainerId} not exists"));
-    //     }
-    //
-    //     return Result.Success();
-    // }
+    [HttpPost("assignPokemon")]
+    [TranslateResultToActionResult]
+    public async Task<Result> AssignPokemon(
+        Guid trainerId,
+        Guid pokemonId,
+        CancellationToken cancellationToken)
+    {
+        await using var dbContext = dbContextFactory.CreateDbContextAsync(cancellationToken).Result;
+    
+        var trainer = 
+            await dbContext.Trainers.Where(t => t.Id == trainerId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+    
+        if (trainer == null)
+        {
+            return Result.Invalid(new ValidationError($"Trainer with Id {trainerId} not exists"));
+        }
+        
+        var pokemon = 
+            await dbContext.Pokemons.Where(t => t.Id == pokemonId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        
+        if (pokemon == null)
+        {
+            return Result.Invalid(new ValidationError($"Trainer with Id {trainerId} not exists"));
+        }
+
+        if (pokemon.Name.Length <= 3)
+        {
+            return Result.Invalid(new ValidationError("Invalid Pokemon Name"));
+        }
+        
+        trainer.Pokemons.Add(pokemon);
+
+        dbContext.Trainers.Update(trainer);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+    }
 }
 
 // Code duplication in Create Trainer and Create Pokemon

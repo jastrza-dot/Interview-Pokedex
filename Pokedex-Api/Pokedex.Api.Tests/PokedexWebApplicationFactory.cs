@@ -37,7 +37,7 @@ public class PokedexWebApplicationFactory : WebApplicationFactory<IPokedexMarker
  
         services.AddDbContextFactory<PokedexDbContext>
         ((_, context) => context
-            .UseInMemoryDatabase("InMemoryDbForTesting")
+            .UseInMemoryDatabase("InMemoryDbForTesting" + Guid.NewGuid())
             .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)));
     }
 }
