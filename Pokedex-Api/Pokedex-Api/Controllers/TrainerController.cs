@@ -96,7 +96,7 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
             return Result.Invalid(new ValidationError($"Pokemon with Id {pokemonId} does not exists"));
         }
 
-        if (pokemon.Name.Length <= 3)
+        if (pokemon.Name.Length > 3)
         {
             return Result.Invalid(new ValidationError("Invalid Pokemon Name"));
         }
@@ -109,6 +109,3 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
         return Result.Success();
     }
 }
-
-// Code duplication in Create Trainer and Create Pokemon
-// Racing in SaveChanges without  await

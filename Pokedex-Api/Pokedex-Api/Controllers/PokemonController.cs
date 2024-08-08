@@ -57,9 +57,3 @@ public class PokemonController(IDbContextFactory<PokedexDbContext> dbContextFact
         return Result.Success(pokemon.Id);
     }
 }
-
-// Create not save to DB
-// Same model to communicate with DB and UI
-// Accessing db in controllers
-
-

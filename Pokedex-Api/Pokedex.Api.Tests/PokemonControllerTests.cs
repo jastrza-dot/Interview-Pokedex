@@ -36,7 +36,6 @@ public class PokemonControllerTests(PokedexWebApplicationFactory factory) : ICla
         var result = await _httpClient.GetAsync($"pokemon/{pokemonId}");
         
         // Assert
-        
         Assert.True(result.IsSuccessStatusCode);
     }
     

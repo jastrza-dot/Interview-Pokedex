@@ -57,7 +57,7 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
 
         //Assert
         var trainers = await response.Content.ReadFromJsonAsync<IEnumerable<Trainer>>();
-        Assert.Equal(trainers?.FirstOrDefault()?.Name, newTrainer.Name);
+        Assert.True(trainers.Any(t => t.Name.Equals(newTrainer.Name)));
     }
 
     [Fact]
@@ -108,15 +108,16 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
         Assert.Equal(response.StatusCode, HttpStatusCode.BadRequest);
     }
 
-    [Fact]
-    public async Task AssignPokemonShouldBeSuccessful()
+    [Theory]
+    [InlineData("Charmander")]
+    public async Task AssignPokemonShouldBeSuccessful(string pokemonName)
     {
         //Arrange
         var trainer = new Trainer("Chase");
         var trainerResponse = await _httpClient.PostAsJsonAsync("trainer", trainer);
         var trainerId = await trainerResponse.Content.ReadFromJsonAsync<Guid>();
 
-        var pokemon = new Pokemon("Charmander", new Statistics { Health = 8, Stamina = 12, Strength = 8 });
+        var pokemon = new Pokemon(pokemonName, new Statistics { Health = 8, Stamina = 12, Strength = 8 });
         var pokemonResponse = await _httpClient.PostAsJsonAsync("pokemon", pokemon);
         var pokemonId = await pokemonResponse.Content.ReadFromJsonAsync<Guid>();
 
