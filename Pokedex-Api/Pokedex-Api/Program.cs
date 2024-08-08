@@ -1,3 +1,6 @@
+using System.Net;
+using Ardalis.Result;
+using Ardalis.Result.AspNetCore;
 using Pokedex_Api;
 using Pokedex_Api.Extensions;
 
@@ -5,7 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.AddResultConvention(c => c.AddDefaultMap().For(
+        ResultStatus.Invalid,
+        HttpStatusCode.BadRequest,
+        resultStatusOptions => resultStatusOptions.With((_, result) => result.ValidationErrors)));
+});
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

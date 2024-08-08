@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Pokedex.Api.Tests;
 
-public class TrainerControllerTests(PokedexWebApplicationFactory factor) 
+public class TrainerControllerTests(PokedexWebApplicationFactory factor)
     : IClassFixture<PokedexWebApplicationFactory>
 {
     private readonly HttpClient _httpClient = factor.CreateClient();
@@ -16,11 +16,11 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
     {
         //Act
         var response = await _httpClient.GetAsync($"trainer/{Guid.NewGuid()}");
-        
+
         //Assert
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
-    
+
     [Fact]
     public async Task GetTrainerShouldReturnTrainerAndAssignedPokemon()
     {
@@ -29,79 +29,101 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
         {
             Pokemons =
             [
-                new Pokemon("Pikachu", new Statistics() { Health = 10, Stamina = 10, Strength = 10 })
+                new Pokemon("Pikachu", new Statistics { Health = 10, Stamina = 10, Strength = 10 })
             ]
         };
-        var newTrainerResponse = await _httpClient.PostAsJsonAsync("trainer",newTrainer);
+        var newTrainerResponse = await _httpClient.PostAsJsonAsync("trainer", newTrainer);
         var trainerId = await newTrainerResponse.Content.ReadFromJsonAsync<Guid>();
-        
+
         //Act
         var response = await _httpClient.GetAsync($"trainer/{trainerId}");
-        
+
         //Assert
         Assert.True(response.IsSuccessStatusCode);
 
         var trainer = await response.Content.ReadFromJsonAsync<Result<Trainer>>();
         Assert.Equivalent(newTrainer, trainer?.Value);
     }
-    
+
     [Fact]
     public async Task GetAllTrainerShouldReturnPreviouslyAddedTrainer()
     {
         //Arrange
-        var newTrainer = new Trainer("Ash")
-        {
-            Pokemons =
-            [
-                new Pokemon("Pikachu", new Statistics() { Health = 10, Stamina = 10, Strength = 10 })
-            ]
-        };
-        await _httpClient.PostAsJsonAsync("trainer",newTrainer);        
-        
+        var newTrainer = new Trainer("Ash's brother");
+        await _httpClient.PostAsJsonAsync("trainer", newTrainer);
+
         //Act
-        var response = await _httpClient.GetAsync($"trainer");
-        
+        var response = await _httpClient.GetAsync("trainer");
+
         //Assert
         var trainers = await response.Content.ReadFromJsonAsync<IEnumerable<Trainer>>();
         Assert.Equal(trainers?.FirstOrDefault()?.Name, newTrainer.Name);
     }
-    
-    [Fact]
-    public void CreateTrainerShouldReturnErrorWhenTrainerAlreadyExists()
-    {
-        //Arrange
-        
-        //Act
-        
-        //Assert
-    }
-    
-    [Fact]
-    public void CreateTrainerShouldFailedWhenAnyOfPokemonsDontMeetRequirements()
-    {
-        //Arrange
-        
-        //Act
-        
-        //Assert
-    }
-    
+
     [Fact]
     public async Task CreateTrainerShouldBeSuccessful()
     {
         //Arrange
-        var newTrainer = new Trainer("Ash")
-        {
-            Pokemons =
-            [
-                new Pokemon("Pikachu", new Statistics() { Health = 10, Stamina = 10, Strength = 10 })
-            ]
-        };
-        
+        var newTrainer = new Trainer("Ash's sister");
+
         //Act
-        var response = await _httpClient.PostAsJsonAsync("trainer",newTrainer);
+        var response = await _httpClient.PostAsJsonAsync("trainer", newTrainer);
 
         //Assert
         Assert.True(response.IsSuccessStatusCode);
+    }
+
+    [Fact]
+    public async Task CreateTrainerShouldReturnErrorWhenTrainerAlreadyExists()
+    {
+        //Arrange
+        var newTrainer = new Trainer("Duplicate");
+        await _httpClient.PostAsJsonAsync("trainer", newTrainer);
+
+        //Act
+        var response = await _httpClient.PostAsJsonAsync("trainer", newTrainer);
+
+        //Assert
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(response.StatusCode, HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task CreateTrainerShouldFailedWhenAnyOfPokemonsDontMeetRequirements()
+    {
+        //Arrange
+        var newTrainer = new Trainer("Another")
+        {
+            Pokemons =
+            [
+                new Pokemon("Pi", new Statistics { Health = 10, Stamina = 10, Strength = 10 })
+            ]
+        };
+
+        //Act
+        var response = await _httpClient.PostAsJsonAsync("trainer", newTrainer);
+
+        //Assert
+        Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(response.StatusCode, HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task AssignPokemonShouldBeSuccessful()
+    {
+        //Arrange
+        var trainer = new Trainer("Chase");
+        var trainerResponse = await _httpClient.PostAsJsonAsync("trainer", trainer);
+        var trainerId = await trainerResponse.Content.ReadFromJsonAsync<Guid>();
+
+        var pokemon = new Pokemon("Charmander", new Statistics { Health = 8, Stamina = 12, Strength = 8 });
+        var pokemonResponse = await _httpClient.PostAsJsonAsync("pokemon", pokemon);
+        var pokemonId = await pokemonResponse.Content.ReadFromJsonAsync<Guid>();
+
+        //Act
+        var assignResponse = await _httpClient.PostAsync($"trainer/{trainerId}/assignPokemon/{pokemonId}", null);
+
+        //Assert
+        Assert.True(assignResponse.IsSuccessStatusCode);
     }
 }

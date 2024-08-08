@@ -63,6 +63,7 @@ public class PokemonControllerTests(PokedexWebApplicationFactory factory) : ICla
         
         // Assert
         Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(response.StatusCode, HttpStatusCode.BadRequest);
     }
 
     [Fact] public async Task CreatePokemonShouldReturnErrorWhenNameIsInvalid()
@@ -75,6 +76,7 @@ public class PokemonControllerTests(PokedexWebApplicationFactory factory) : ICla
 
         // Assert
         Assert.False(response.IsSuccessStatusCode);
+        Assert.Equal(response.StatusCode, HttpStatusCode.BadRequest);
     }
     
     [Fact] public async Task CreatePokemonShouldOk()
