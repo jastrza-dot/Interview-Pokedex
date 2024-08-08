@@ -5,7 +5,7 @@
 1. IDE for backend development with support of .Net 8
 2. IDE for frontend
 3. Nodejs Node v20+
-4. Npm 10.8.2
+4. Npm 10+
  
 ## Interview Agenda:
  
