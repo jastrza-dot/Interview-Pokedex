@@ -1,17 +1,9 @@
-﻿using Ardalis.Result;
+﻿namespace Pokedex_Api.Models;
 
-namespace Pokedex_Api.Models;
-
-public class Trainer
+public class Trainer(string name)
 {
-    public Guid Id { get; set; }
-    public string Name { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Name { get; set; } = name;
 
     public IList<Pokemon> Pokemons { get; set; } = [];
-
-    public Trainer(string name)
-    {
-        Id = Guid.NewGuid();
-        Name = name;
-    }
 }

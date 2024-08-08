@@ -81,8 +81,7 @@ public class TrainerController(IDbContextFactory<PokedexDbContext> dbContextFact
 
         var trainer =
             await dbContext.Trainers.Where(t => t.Id == trainerId).FirstOrDefaultAsync(cancellationToken: cancellationToken);
-
-
+        
         if (trainer == null)
         {
             return Result.Invalid(new ValidationError($"Trainer with Id {trainerId} does not exists"));

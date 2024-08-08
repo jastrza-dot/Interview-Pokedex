@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using Ardalis.Result;
 using Pokedex_Api.Models;
 using Xunit;
 
@@ -41,8 +40,8 @@ public class TrainerControllerTests(PokedexWebApplicationFactory factor)
         //Assert
         Assert.True(response.IsSuccessStatusCode);
 
-        var trainer = await response.Content.ReadFromJsonAsync<Result<Trainer>>();
-        Assert.Equivalent(newTrainer, trainer?.Value);
+        var trainer = await response.Content.ReadFromJsonAsync<Trainer>();
+        Assert.Equivalent(newTrainer, trainer);
     }
 
     [Fact]

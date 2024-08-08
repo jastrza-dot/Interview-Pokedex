@@ -28,7 +28,7 @@ public class PokemonControllerTests(PokedexWebApplicationFactory factory) : ICla
     public async Task GetShouldReturnPokemon()
     {
         // Arrange
-        var pokemon = new Pokemon("TestPokemon", new Statistics(){Health = 10, Stamina = 10, Strength = 10});
+        var pokemon = new Pokemon("TestPokemon", new Statistics {Health = 10, Stamina = 10, Strength = 10});
         var response = await _httpClient.PostAsJsonAsync("pokemon", pokemon);
         var pokemonId = await response.Content.ReadFromJsonAsync<Guid>();
 
@@ -68,7 +68,7 @@ public class PokemonControllerTests(PokedexWebApplicationFactory factory) : ICla
     [Fact] public async Task CreatePokemonShouldReturnErrorWhenNameIsInvalid()
     {
         // Arrange
-        var pokemon = new Pokemon("Te", new Statistics(){Health = 10, Stamina = 10, Strength = 10});
+        var pokemon = new Pokemon("Te", new Statistics {Health = 10, Stamina = 10, Strength = 10});
 
         // Act
         var response = await _httpClient.PostAsJsonAsync("pokemon", pokemon);
@@ -81,7 +81,7 @@ public class PokemonControllerTests(PokedexWebApplicationFactory factory) : ICla
     [Fact] public async Task CreatePokemonShouldOk()
     {
         // Arrange
-        var pokemon = new Pokemon("TestPokemon", new Statistics(){Health = 10, Stamina = 10, Strength = 10});
+        var pokemon = new Pokemon("TestPokemon", new Statistics {Health = 10, Stamina = 10, Strength = 10});
 
         // Act
         var response = await _httpClient.PostAsJsonAsync("pokemon", pokemon);
