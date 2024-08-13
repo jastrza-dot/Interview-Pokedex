@@ -1,4 +1,4 @@
-﻿using Ardalis.Result;
+using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,11 @@ public class PokemonController(IDbContextFactory<PokedexDbContext> dbContextFact
     public async Task<Result<Pokemon>> Get(Guid id, CancellationToken cancellationToken)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
-        var pokemon = await dbContext.Pokemons.Include(p => p.Statistics).Where(pokemon => pokemon.Id == id).FirstOrDefaultAsync(cancellationToken);
+        var pokemon = await dbContext
+            .Pokemons
+            .Include(p => p.Statistics)
+            .Where(pokemon => pokemon.Id == id)
+            .FirstOrDefaultAsync(cancellationToken);
 
         if (pokemon == null)
         {
@@ -30,7 +34,10 @@ public class PokemonController(IDbContextFactory<PokedexDbContext> dbContextFact
     public async Task<IEnumerable<Pokemon>> GetAll(CancellationToken cancellationToken)
     {
         await using var dbContext = await dbContextFactory.CreateDbContextAsync(cancellationToken);
-        return await dbContext.Pokemons.ToListAsync(cancellationToken);
+        return await dbContext
+            .Pokemons
+            .Include(p => p.Statistics)
+            .ToListAsync(cancellationToken);
     }
     
     [HttpPost]
