@@ -1,4 +1,4 @@
-﻿namespace Pokedex_Api.Models;
+﻿namespace Pokedex.Api.Models;
 
 public class Pokemon
 {

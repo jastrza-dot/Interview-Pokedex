@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Pokedex_Api.Models;
+using Pokedex.Api.Models;
 
-namespace Pokedex_Api;
+namespace Pokedex.Api;
 
 public static class DbInitializer
 {

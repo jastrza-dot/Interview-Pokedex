@@ -2,9 +2,9 @@ using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Pokedex_Api.Models;
+using Pokedex.Api.Models;
 
-namespace Pokedex_Api.Controllers;
+namespace Pokedex.Api.Controllers;
 
 [ApiController]
 [Route("pokemon/")]

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
-using Pokedex_Api.Models;
+using Pokedex.Api.Models;
 using Xunit;
 
 namespace Pokedex.Api.Tests;

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Pokedex_Api.Extensions;
+namespace Pokedex.Api.Extensions;
 
 public static class ServiceCollectionExtensions
 {

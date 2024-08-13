@@ -1,8 +1,8 @@
 using System.Net;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Pokedex_Api;
-using Pokedex_Api.Extensions;
+using Pokedex.Api;
+using Pokedex.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
