@@ -1,3 +1,3 @@
-﻿namespace Pokedex_Api;
+﻿namespace Pokedex.Api;
 
 public interface IPokedexMarker;

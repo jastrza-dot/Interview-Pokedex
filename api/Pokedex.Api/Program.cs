@@ -1,8 +1,8 @@
 using System.Net;
 using Ardalis.Result;
 using Ardalis.Result.AspNetCore;
-using Pokedex_Api;
-using Pokedex_Api.Extensions;
+using Pokedex.Api;
+using Pokedex.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +15,7 @@ builder.Services.AddControllers(options =>
         HttpStatusCode.BadRequest,
         resultStatusOptions => resultStatusOptions.With((_, result) => result.ValidationErrors)));
 });
+builder.Services.AddCorsPolicy();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -28,7 +29,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCorsPolicy();
 app.UseAuthorization();
 
 using var scope = app.Services.CreateScope();
